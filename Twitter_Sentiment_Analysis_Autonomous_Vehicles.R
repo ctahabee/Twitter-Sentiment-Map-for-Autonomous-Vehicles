@@ -26,17 +26,19 @@ av_tweets_organic[1,5]
 av_tweets_organic <- av_tweets_organic %>% arrange(-retweet_count)
 av_tweets_organic[1,5]
 
+# Cleaning text and preparing data for sentiment analysis
 av_tweets_organic$text <-  gsub("https\\S*", "", av_tweets_organic$text)
 av_tweets_organic$text <-  gsub("@\\S*", "", av_tweets_organic$text) 
 av_tweets_organic$text  <-  gsub("amp", "", av_tweets_organic$text) 
 av_tweets_organic$text  <-  gsub("[\r\n]", "", av_tweets_organic$text)
 av_tweets_organic$text  <-  gsub("[[:punct:]]", "", av_tweets_organic$text)
 
+# Tokenizing
 tweets <- av_tweets_organic %>%
   select(text) %>%
   unnest_tokens(word, text)
-tweets <- tweets %>%
-  anti_join(stop_words)
+tweets <- tweets %>% 
+  anti_join(stop_words) # Removing stopwords
 
 tweets %>% # bar chart of the most frequent words found in the tweets
   count(word, sort = TRUE) %>%
@@ -55,34 +57,28 @@ av_tweets_organic$hashtags <- as.character(av_tweets_organic$hashtags)
 av_tweets_organic$hashtags <- gsub("c\\(", "", av_tweets_organic$hashtags)
 set.seed(1234)
 wordcloud(av_tweets_organic$hashtags, min.freq=5, scale=c(3.5, .5), random.order=FALSE, rot.per=0.35, 
-          colors=brewer.pal(8, "Dark2"))
+          colors=brewer.pal(8, "Dark2")) # Wordcloud of most popular hashtags
 
 
-# Converting tweets to ASCII to trackle strange characters
+# Converting tweets to ASCII
 tweets <- iconv(tweets, from="UTF-8", to="ASCII", sub="")
 # removing retweets
 tweets <-gsub("(RT|via)((?:\\b\\w*@\\w+)+)","",tweets)
 # removing mentions
 tweets <-gsub("@\\w+","",tweets)
-ew_sentiment<-get_nrc_sentiment((tweets))
-sentimentscores<-data.frame(colSums(ew_sentiment[,]))
+
+# NRC sentiments
+nrc_sentiment<-get_nrc_sentiment((tweets))
+sentimentscores<-data.frame(colSums(nrc_sentiment[,]))
+
 names(sentimentscores) <- "Score"
 sentimentscores <- cbind("sentiment"=rownames(sentimentscores),sentimentscores)
 rownames(sentimentscores) <- NULL
 
-#plotting total sentiment based on scores
+
 ggplot(data=sentimentscores,aes(x=sentiment,y=Score))+
   geom_bar(aes(fill=sentiment),stat = "identity")+
   theme(legend.position="none")+
   xlab("Sentiments")+ylab("Scores")+
   ggtitle("Total sentiment based on scores")+
-  theme_minimal()
-
-
-install.packages('sentimentr')
-library(sentimentr)
-get_nrc_sentiment(tweets)
-av_tweets_organic$sentimentscore <- sentiment(av_tweets_organic$text)
-av_tweets_organic$symbols <- as.matrix(av_tweets_organic$symbols)
-av_tweets_organic$ur
-write.csv(av_tweets_organic, '~/Downloads/sentiment.csv')
+  theme_minimal() # plotting total sentiment based on scores
