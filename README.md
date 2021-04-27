@@ -4,4 +4,5 @@ In this project, I scraped geo-tagged tweets using Twtter's API to create a sent
 I also created this infographic for the class assignment.
 
 
-![alt text](https://github.com/ctahabee/Twitter-Sentiment-Map-for-Autonomous-Vehicles/blob/main/Tahabee - APAN5800 - Infographic - Final.png?raw=true)
+![alt text](https://github.com/ctahabee/Twitter-Sentiment-Map-for-Autonomous-Vehicles/blob/main/av-infographic.png?raw=true)
+
